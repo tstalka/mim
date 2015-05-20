@@ -1,5 +1,6 @@
 package org.motechproject.nms.api.web;
 
+import org.motechproject.nms.api.web.contract.BadRequest;
 import org.motechproject.nms.api.web.contract.kilkari.CallDataRequest;
 import org.motechproject.nms.api.web.contract.kilkari.InboxCallDetailsRequest;
 import org.motechproject.nms.api.web.contract.kilkari.InboxResponse;
@@ -16,6 +17,7 @@ import org.motechproject.nms.kilkari.domain.SubscriptionOrigin;
 import org.motechproject.nms.kilkari.domain.SubscriptionPack;
 import org.motechproject.nms.kilkari.domain.SubscriptionPackMessage;
 import org.motechproject.nms.kilkari.exception.NoInboxForSubscriptionException;
+import org.motechproject.nms.kilkari.exception.SubscriptionCapException;
 import org.motechproject.nms.kilkari.service.InboxService;
 import org.motechproject.nms.kilkari.service.SubscriberService;
 import org.motechproject.nms.kilkari.service.SubscriptionService;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -50,6 +53,7 @@ public class KilkariController extends BaseController {
      */
     public static final int SUBSCRIPTION_ID_LENGTH = 36;
     public static final Set<String> SUBSCRIPTION_PACK_SET = new HashSet<>(Arrays.asList("48WeeksPack", "72WeeksPack"));
+    private static final String SUBSCRIPTION_CAP = "<Kilkari Subscription Cap Reached>";
 
     @Autowired
     private SubscriberService subscriberService;
@@ -219,11 +223,13 @@ public class KilkariController extends BaseController {
             headers = { "Content-type=application/json" })
     @ResponseStatus(HttpStatus.OK)
     @Transactional
-    public void createSubscription(@RequestBody SubscriptionRequest subscriptionRequest) {
+    public void createSubscription(@RequestBody SubscriptionRequest subscriptionRequest) throws
+        SubscriptionCapException {
+
         StringBuilder failureReasons = validate(subscriptionRequest.getCallingNumber(),
-                                                subscriptionRequest.getCallId(),
-                                                subscriptionRequest.getOperator(),
-                                                subscriptionRequest.getCircle());
+                subscriptionRequest.getCallId(),
+                subscriptionRequest.getOperator(),
+                subscriptionRequest.getCircle());
         validateFieldPresent(failureReasons, "subscriptionPack", subscriptionRequest.getSubscriptionPack());
         validateFieldPresent(failureReasons, "languageLocationCode",
                              subscriptionRequest.getLanguageLocationCode());
@@ -248,8 +254,12 @@ public class KilkariController extends BaseController {
             throw new NotFoundException(String.format(NOT_FOUND, "subscriptionPack"));
         }
 
-        subscriptionService.createSubscription(subscriptionRequest.getCallingNumber(), languageLocation,
-                                               subscriptionPack, SubscriptionOrigin.IVR);
+        try {
+            subscriptionService.createSubscription(subscriptionRequest.getCallingNumber(), languageLocation,
+                    subscriptionPack, SubscriptionOrigin.IVR);
+        } catch(SubscriptionCapException e) {
+            throw new SubscriptionCapException(SUBSCRIPTION_CAP);
+        }
     }
 
     /**
@@ -281,5 +291,13 @@ public class KilkariController extends BaseController {
         }
 
         subscriptionService.deactivateSubscription(subscription, DeactivationReason.DEACTIVATED_BY_USER);
+    }
+
+
+    @ExceptionHandler(SubscriptionCapException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public BadRequest handleException(NotFoundException e) {
+        return new BadRequest(e.getMessage());
     }
 }

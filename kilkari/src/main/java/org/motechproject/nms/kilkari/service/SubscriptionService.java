@@ -5,6 +5,7 @@ import org.motechproject.nms.kilkari.domain.DeactivationReason;
 import org.motechproject.nms.kilkari.domain.Subscription;
 import org.motechproject.nms.kilkari.domain.SubscriptionOrigin;
 import org.motechproject.nms.kilkari.domain.SubscriptionPack;
+import org.motechproject.nms.kilkari.exception.SubscriptionCapException;
 import org.motechproject.nms.props.domain.DayOfTheWeek;
 import org.motechproject.nms.region.domain.LanguageLocation;
 
@@ -25,9 +26,11 @@ public interface SubscriptionService {
      * @param subscriptionPack The subscription pack (e.g. Pregnancy, Child) for which to subscribe this beneficiary
      * @param mode How the subscription originated -- via IVR or MCTS import
      * @return The created subscription, or null if no subscription was created
+     * @throws SubscriptionCapException If the subscription can't be created due to the global subscription cap
+     * being met
      */
     Subscription createSubscription(long callingNumber, LanguageLocation languageLocation, SubscriptionPack subscriptionPack,
-                            SubscriptionOrigin mode);
+                            SubscriptionOrigin mode) throws SubscriptionCapException;
 
     /**
      * Get the subscription for the specified subscription ID

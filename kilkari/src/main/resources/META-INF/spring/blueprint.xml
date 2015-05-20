@@ -52,6 +52,9 @@
     <osgi:reference id="callRetryDataService"
                     interface="org.motechproject.nms.kilkari.repository.CallRetryDataService" />
 
+    <osgi:reference id="propertyService"
+                    interface="org.motechproject.nms.props.service.PropertyService" />
+
     <osgi:reference id="alertsService" interface="org.motechproject.alerts.contract.AlertService" />
 
 </beans>

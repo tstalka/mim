@@ -99,6 +99,7 @@
                             org.motechproject.nms.kilkari.dto;version=${project.version},
                         </Export-Package>
                         <Import-Package>
+                            org.motechproject.nms.props.service,
                             org.motechproject.osgi.web,
                             org.aopalliance.aop,
                             org.springframework.aop,

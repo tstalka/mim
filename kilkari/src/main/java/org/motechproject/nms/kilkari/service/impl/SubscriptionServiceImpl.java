@@ -15,6 +15,7 @@ import org.motechproject.nms.kilkari.repository.SubscriptionDataService;
 import org.motechproject.nms.kilkari.repository.SubscriptionPackDataService;
 import org.motechproject.nms.kilkari.service.SubscriptionService;
 import org.motechproject.nms.props.domain.DayOfTheWeek;
+import org.motechproject.nms.props.service.PropertyService;
 import org.motechproject.nms.region.domain.LanguageLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,11 +39,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private SubscriberDataService subscriberDataService;
     private SubscriptionPackDataService subscriptionPackDataService;
     private SubscriptionDataService subscriptionDataService;
+    private PropertyService propertyService;
 
     @Autowired
     public SubscriptionServiceImpl(SubscriberDataService subscriberDataService,
                                    SubscriptionPackDataService subscriptionPackDataService,
-                                   SubscriptionDataService subscriptionDataService) {
+                                   SubscriptionDataService subscriptionDataService,
+                                   PropertyService propertyService) {
         this.subscriberDataService = subscriberDataService;
         this.subscriptionPackDataService = subscriptionPackDataService;
         this.subscriptionDataService = subscriptionDataService;
@@ -108,6 +111,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             subscriberDataService.update(subscriber);
         }
         return subscription;
+    }
+
+    private boolean isSubscriptionCapReached() {
+
     }
 
     private Subscription createSubscriptionViaIvr(Subscriber subscriber, SubscriptionPack pack) {

@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- *
+ *  Process and the cdr detail and summary files from IMI
  */
 public interface CdrFileService {
 
@@ -17,6 +17,12 @@ public interface CdrFileService {
         PASS3  // record count, valid csv + aggregate CDRS into CSR and send for distributed processing
     }
 
+
+    /**
+     * Copies the given file from remote share to localhost
+     * @param fileName name of the file to be copied
+     */
+    void scpFileToLocal(String fileName);
 
     /**
      * Verifies the checksum & record count provided in fileInfo match the checksum & record count of file

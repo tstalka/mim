@@ -1,20 +1,15 @@
 package org.motechproject.nms.imi.web;
 
-import org.motechproject.nms.imi.domain.FileAuditRecord;
-import org.motechproject.nms.imi.domain.FileType;
-import org.motechproject.nms.imi.exception.ExecException;
 import org.motechproject.nms.imi.exception.InvalidCdrFileException;
 import org.motechproject.nms.imi.exception.NotFoundException;
 import org.motechproject.nms.imi.repository.FileAuditRecordDataService;
 import org.motechproject.nms.imi.service.CdrFileService;
 import org.motechproject.nms.imi.service.TargetFileService;
-import org.motechproject.nms.imi.service.impl.ScpHelper;
 import org.motechproject.nms.imi.validator.CdrValidator;
 import org.motechproject.nms.imi.web.contract.AggregateBadRequest;
 import org.motechproject.nms.imi.web.contract.BadRequest;
 import org.motechproject.nms.imi.web.contract.CdrFileNotificationRequest;
 import org.motechproject.nms.imi.web.contract.FileProcessedStatusRequest;
-import org.motechproject.server.config.SettingsFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,15 +31,13 @@ public class ImiController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImiController.class);
 
-    private SettingsFacade settingsFacade;
     private CdrFileService cdrFileService;
     private TargetFileService targetFileService;
     private FileAuditRecordDataService fileAuditRecordDataService;
 
     @Autowired
-    public ImiController(SettingsFacade settingsFacade, CdrFileService cdrFileService,
-                         TargetFileService targetFileService, FileAuditRecordDataService fileAuditRecordDataService) {
-        this.settingsFacade = settingsFacade;
+    public ImiController(CdrFileService cdrFileService, TargetFileService targetFileService,
+                         FileAuditRecordDataService fileAuditRecordDataService) {
         this.cdrFileService = cdrFileService;
         this.targetFileService = targetFileService;
         this.fileAuditRecordDataService = fileAuditRecordDataService;
@@ -85,28 +78,16 @@ public class ImiController {
 
 
         // Copy the file from the IMI network share (imi.remote_cdr_dir) into local cdr dir (imi.local_cdr_dir)
-        ScpHelper scpHelper = new ScpHelper(settingsFacade);
-        String fileName = request.getCdrDetail().getCdrFile();
-        try {
-            scpHelper.scpCdrFromRemote(fileName);
-        } catch (ExecException e) {
-            String error = String.format("Error copying CDR file %s: %s", fileName, e.getMessage());
-            LOGGER.error(error);
-            fileAuditRecordDataService.create(new FileAuditRecord(
-                    FileType.CDR_DETAIL_FILE,
-                    fileName,
-                    false,
-                    error,
-                    null,
-                    null
-            ));
-            //todo: send alert
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
+
+        cdrFileService.scpFileToLocal(request.getCdrDetail().getCdrFile());
+        cdrFileService.scpFileToLocal(request.getCdrSummary().getCdrFile());
+        LOGGER.debug("Copied detail and summary files");
 
         // This checks the file, checksum, record count & csv lines, then sends an event to proceed to phase 2 of the
         // CDR processing task also handled by the IMI module: processDetailFile
         cdrFileService.verifyDetailFileChecksumAndCount(request.getCdrDetail());
+        cdrFileService.verifyDetailFileChecksumAndCount(request.getCdrSummary());
+        LOGGER.debug("verified checksum and count");
     }
 
 

@@ -35,8 +35,11 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -210,6 +213,30 @@ public class CdrFileServiceImpl implements CdrFileService {
         eventRelay.sendEventMessage(motechEvent);
     }
 
+    /**
+     * Copies the file from the remote share to localhost
+     * @param fileName name of the file to be copied
+     */
+    public void scpFileToLocal(String fileName) {
+
+        ScpHelper scpHelper = new ScpHelper(settingsFacade);
+        try {
+            scpHelper.scpCdrFromRemote(fileName);
+        } catch (ExecException e) {
+            String error = String.format("Error copying CDR file %s: %s", fileName, e.getMessage());
+            LOGGER.error(error);
+            fileAuditRecordDataService.create(new FileAuditRecord(
+                    FileType.CDR_DETAIL_FILE,
+                    fileName,
+                    false,
+                    error,
+                    null,
+                    null
+            ));
+            //todo: send alert
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
+    }
 
     /**
      * Verifies the checksum & record count provided in fileInfo match the checksum & record count of file
@@ -225,21 +252,21 @@ public class CdrFileServiceImpl implements CdrFileService {
         int maxErrorCount = getMaxErrorCount();
         int errorCount = 0;
         List<String> errors = new ArrayList<>();
-        int lineNumber = 1;
+        int lineNumber = -1;
         String thisChecksum = "";
         String fileName = file.getName();
 
+
         try (FileInputStream fis = new FileInputStream(file);
              InputStreamReader isr = new InputStreamReader(fis);
-             BufferedReader reader = new BufferedReader(isr)) {
+             BufferedReader reader = new BufferedReader(isr);
+             LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file))) {
 
-            MessageDigest md = null;
+            MessageDigest md = MessageDigest.getInstance("MD5");
             @SuppressWarnings("PMD.UnusedLocalVariable")
             DigestInputStream dis = new DigestInputStream(fis, md);
-            md = MessageDigest.getInstance("MD5");
 
-            String line;
-            while ((line = reader.readLine()) != null) {
+            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 try {
 
                     // Parse the CSV line into a CDR (which we actually discard in this phase)
@@ -254,10 +281,10 @@ public class CdrFileServiceImpl implements CdrFileService {
                             "ending file verification.", maxErrorCount));
                     return errors;
                 }
-                lineNumber++;
             }
 
             thisChecksum = new String(Hex.encodeHex(md.digest()));
+            lineNumber = lineNumberReader.getLineNumber();
 
         } catch (IOException e) {
             String error = String.format("Unable to read %s: %s", fileName, e.getMessage());
@@ -273,9 +300,9 @@ public class CdrFileServiceImpl implements CdrFileService {
             errors.add(error);
         }
 
-        if (lineNumber - 1 != fileInfo.getRecordsCount()) {
+        if (lineNumber != fileInfo.getRecordsCount()) {
             String error = String.format("Record count mismatch, provided count: %d, actual count: %d",
-                    fileInfo.getRecordsCount(), lineNumber - 1);
+                    fileInfo.getRecordsCount(), lineNumber);
             errors.add(error);
         }
 
@@ -415,15 +442,6 @@ public class CdrFileServiceImpl implements CdrFileService {
         return errors;
     }
 
-
-    private void sendProcessDetailFileEvent(FileInfo fileInfo) {
-        Map<String, Object> eventParams = new HashMap<>();
-        eventParams.put(FILE_INFO_PARAM_KEY, fileInfo);
-        MotechEvent motechEvent = new MotechEvent(PROCESS_DETAIL_FILE_SUBJECT, eventParams);
-        eventRelay.sendEventMessage(motechEvent);
-    }
-
-
     private File localCdrDir() {
         return new File(settingsFacade.getProperty(LOCAL_CDR_DIR));
     }
@@ -443,7 +461,10 @@ public class CdrFileServiceImpl implements CdrFileService {
         }
 
         // Send a MOTECH event to continue to phase 2 (without timing out the POST from IMI)
-        sendProcessDetailFileEvent(fileInfo);
+        Map<String, Object> eventParams = new HashMap<>();
+        eventParams.put(FILE_INFO_PARAM_KEY, fileInfo);
+        MotechEvent motechEvent = new MotechEvent(PROCESS_DETAIL_FILE_SUBJECT, eventParams);
+        eventRelay.sendEventMessage(motechEvent);
     }
 
 
@@ -462,26 +483,10 @@ public class CdrFileServiceImpl implements CdrFileService {
         // event, so make sure to copy the file locally, if it's not there already.
 
         if (file.exists()) {
-            LOGGER.debug("{} already exists on this MOTECH node, no need to copy it from IMI.", file.getName());
+            LOGGER.debug("{} already exists on this MOTECH node, no need to copy it from IMI.", fileName);
         } else {
-            LOGGER.debug("{} doesn't exists on this MOTECH node, copying it from IMI...", file.getName());
-            ScpHelper scpHelper = new ScpHelper(settingsFacade);
-            try {
-                scpHelper.scpCdrFromRemote(fileName);
-            } catch (ExecException e) {
-                String error = String.format("Error copying CDR file %s: %s", fileName, e.getMessage());
-                LOGGER.error(error);
-                fileAuditRecordDataService.create(new FileAuditRecord(
-                        FileType.CDR_DETAIL_FILE,
-                        fileName,
-                        false,
-                        error,
-                        null,
-                        null
-                ));
-                //todo: send alert
-                throw new IllegalArgumentException(e.getMessage(), e);
-            }
+            LOGGER.debug("{} doesn't exists on this MOTECH node, copying it from IMI...", fileName);
+            scpFileToLocal(fileName);
         }
 
         // Sort the file (on requestId & attemptNo) into a new file with the same name plus the ".sorted" suffix

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service("imiItService")
 public class IntegrationTestServiceImpl implements IntegrationTestService {
 
-    private static final String TESTING_ENVIRONMENT="testing.environment";
+    private static final String TESTING_ENVIRONMENT = "testing.environment";
 
     @Autowired
     private FileAuditRecordDataService fileAuditRecordDataService;

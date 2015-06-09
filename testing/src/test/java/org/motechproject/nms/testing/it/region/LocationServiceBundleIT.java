@@ -30,9 +30,11 @@ import org.ops4j.pax.exam.spi.reactors.PerSuite;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
-import java.util.List;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
@@ -210,28 +212,28 @@ public class LocationServiceBundleIT extends BasePaxIT {
         assertNotNull(newState);
         Assert.assertEquals(state, newState);
 
-        List<District> districtList = newState.getDistricts();
+        Set<District> districtList = newState.getDistricts();
         assertEquals(1, districtList.size());
         assertTrue(districtList.contains(district));
 
-        List<Taluka> talukaList = districtList.get(0).getTalukas();
+        Set<Taluka> talukaList = districtList.iterator().next().getTalukas();
         assertEquals(1, talukaList.size());
         assertTrue(talukaList.contains(taluka));
 
-        List<Village> villageList = talukaList.get(0).getVillages();
+        Set<Village> villageList = talukaList.iterator().next().getVillages();
         assertEquals(1, villageList.size());
         assertTrue(villageList.contains(village));
 
-        List<HealthBlock> healthBlockList = talukaList.get(0).getHealthBlocks();
+        Set<HealthBlock> healthBlockList = talukaList.iterator().next().getHealthBlocks();
         assertEquals(1, healthBlockList.size());
         assertTrue(healthBlockList.contains(healthBlock));
 
-        List<HealthFacility> healthFacilityList = healthBlockList.get(0).getHealthFacilities();
+        Set<HealthFacility> healthFacilityList = healthBlockList.iterator().next().getHealthFacilities();
         assertEquals(1, healthFacilityList.size());
-        Assert.assertEquals(healthFacilityType, healthFacilityList.get(0).getHealthFacilityType());
+        Assert.assertEquals(healthFacilityType, healthFacilityList.iterator().next().getHealthFacilityType());
         assertTrue(healthFacilityList.contains(healthFacility));
 
-        List<HealthSubFacility> healthSubFacilityList = healthFacilityList.get(0).getHealthSubFacilities();
+        Set<HealthSubFacility> healthSubFacilityList = healthFacilityList.iterator().next().getHealthSubFacilities();
         assertEquals(1, healthSubFacilityList.size());
         assertTrue(healthSubFacilityList.contains(healthSubFacility));
     }

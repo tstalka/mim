@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * BaseController
@@ -191,10 +191,10 @@ public class BaseController {
         State state = frontLineWorkerService.getState(flw);
 
         if (state == null && circle != null) {
-            List<State> states = circle.getStates();
+            Set<State> states = circle.getStates();
 
             if (states.size() == 1) {
-                state = states.get(0);
+                state = states.iterator().next();
             }
         }
 

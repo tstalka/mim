@@ -10,8 +10,8 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.Unique;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class Models data for HealthBlock location records
@@ -51,10 +51,10 @@ public class HealthBlock extends MdsEntity {
     @Field
     @Cascade(delete = true)
     @Persistent(mappedBy = "healthBlock", defaultFetchGroup = "true")
-    private List<HealthFacility> healthFacilities;
+    private Set<HealthFacility> healthFacilities;
 
     public HealthBlock() {
-        this.healthFacilities = new ArrayList<>();
+        this.healthFacilities = new HashSet<>();
     }
 
     public String getName() {
@@ -97,11 +97,11 @@ public class HealthBlock extends MdsEntity {
         this.taluka = taluka;
     }
 
-    public List<HealthFacility> getHealthFacilities() {
+    public Set<HealthFacility> getHealthFacilities() {
         return healthFacilities;
     }
 
-    public void setHealthFacilities(List<HealthFacility> healthFacilities) {
+    public void setHealthFacilities(Set<HealthFacility> healthFacilities) {
         this.healthFacilities = healthFacilities;
     }
 

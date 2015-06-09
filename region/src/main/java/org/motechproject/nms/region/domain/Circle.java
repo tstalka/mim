@@ -5,8 +5,8 @@ import org.motechproject.mds.annotations.Field;
 import org.motechproject.mds.domain.MdsEntity;
 
 import javax.jdo.annotations.Unique;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(tableName = "nms_circles")
 public class Circle extends MdsEntity {
@@ -15,18 +15,18 @@ public class Circle extends MdsEntity {
     private String name;
 
     @Field
-    private List<State> states;
+    private Set<State> states;
 
     @Field
     private Language defaultLanguage;
 
     public Circle() {
-        this.states = new ArrayList<>();
+        this.states = new HashSet<>();
     }
 
     public Circle(String name) {
         this.name = name;
-        this.states = new ArrayList<>();
+        this.states = new HashSet<>();
     }
 
     public String getName() {
@@ -37,11 +37,11 @@ public class Circle extends MdsEntity {
         this.name = name;
     }
 
-    public List<State> getStates() {
+    public Set<State> getStates() {
         return states;
     }
 
-    public void setStates(List<State> states) {
+    public void setStates(Set<State> states) {
         this.states = states;
     }
 

@@ -10,8 +10,8 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.Unique;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class Models data for District location records
@@ -46,14 +46,14 @@ public class District extends MdsEntity {
     @Field
     @Cascade(delete = true)
     @Persistent(mappedBy = "district", defaultFetchGroup = "true")
-    private List<Taluka> talukas;
+    private Set<Taluka> talukas;
 
     @Field
     @Persistent(defaultFetchGroup = "true")
     private Language language;
 
     public District() {
-        this.talukas = new ArrayList<>();
+        this.talukas = new HashSet<>();
     }
 
     public String getName() {
@@ -88,11 +88,11 @@ public class District extends MdsEntity {
         this.state = state;
     }
 
-    public List<Taluka> getTalukas() {
+    public Set<Taluka> getTalukas() {
         return talukas;
     }
 
-    public void setTalukas(List<Taluka> talukas) {
+    public void setTalukas(Set<Taluka> talukas) {
         this.talukas = talukas;
     }
 

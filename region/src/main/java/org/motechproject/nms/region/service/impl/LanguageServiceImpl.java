@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.jdo.Query;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +46,7 @@ public class LanguageServiceImpl implements LanguageService {
 
 
     @Override
-    public List<Language> getAllForCircle(final Circle circle) {
+    public Set<Language> getAllForCircle(final Circle circle) {
 
         SqlQueryExecution<List<Language>> queryExecution = new SqlQueryExecution<List<Language>>() {
 
@@ -69,25 +68,25 @@ public class LanguageServiceImpl implements LanguageService {
             }
         };
 
-        List<Language> languages = languageDataService.executeSQLQuery(queryExecution);
+        List<Language> languageList = languageDataService.executeSQLQuery(queryExecution);
 
-        if (languages == null) {
-            languages = new ArrayList<>();
+        if (languageList == null) {
+            return new HashSet<>();
         }
 
-        return languages;
+        return new HashSet<>(languageList);
     }
 
 
     @Override
-    public List<Language> getAll() {
-        List<Language> languages = languageDataService.retrieveAll();
+    public Set<Language> getAll() {
+        List<Language> languageList = languageDataService.retrieveAll();
 
-        if (languages == null) {
-            languages = new ArrayList<>();
+        if (languageList == null) {
+            return new HashSet<>();
         }
 
-        return languages;
+        return new HashSet<>(languageList);
     }
 
     @Override

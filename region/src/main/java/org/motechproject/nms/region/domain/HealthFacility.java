@@ -10,8 +10,8 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.Unique;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 // TODO: Remove maxFetchDepth once https://applab.atlassian.net/browse/MOTECH-1678 is resolved
 @Entity(maxFetchDepth = -1, tableName = "nms_health_facilities")
@@ -48,10 +48,10 @@ public class HealthFacility extends MdsEntity {
     @Field
     @Cascade(delete = true)
     @Persistent(mappedBy = "healthFacility", defaultFetchGroup = "true")
-    private List<HealthSubFacility> healthSubFacilities;
+    private Set<HealthSubFacility> healthSubFacilities;
 
     public HealthFacility() {
-        this.healthSubFacilities = new ArrayList<>();
+        this.healthSubFacilities = new HashSet<>();
     }
 
     public String getName() {
@@ -94,11 +94,11 @@ public class HealthFacility extends MdsEntity {
         this.healthBlock = healthBlock;
     }
 
-    public List<HealthSubFacility> getHealthSubFacilities() {
+    public Set<HealthSubFacility> getHealthSubFacilities() {
         return healthSubFacilities;
     }
 
-    public void setHealthSubFacilities(List<HealthSubFacility> healthSubFacilities) {
+    public void setHealthSubFacilities(Set<HealthSubFacility> healthSubFacilities) {
         this.healthSubFacilities = healthSubFacilities;
     }
 

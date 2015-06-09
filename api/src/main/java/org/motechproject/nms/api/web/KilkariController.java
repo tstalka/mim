@@ -39,7 +39,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -268,9 +267,9 @@ public class KilkariController extends BaseController {
             return stateSet.iterator().next();
         }
 
-        List<State> stateList = circle.getStates();
+        Set<State> stateList = circle.getStates();
         if (stateList.size() == 1) {
-            return stateList.get(0);
+            return stateList.iterator().next();
         }
 
         return null;

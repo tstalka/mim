@@ -11,8 +11,8 @@ import javax.jdo.annotations.Join;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.Unique;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class Models data for State location records
@@ -34,25 +34,25 @@ public class State extends MdsEntity {
     @Field
     @Cascade(delete = true)
     @Persistent(mappedBy = "state", defaultFetchGroup = "true")
-    private List<District> districts;
+    private Set<District> districts;
 
     @Field
     @Cascade(delete = true)
     @Persistent(table = "nms_states_join_circles", mappedBy = "states", defaultFetchGroup = "true")
     @Join(column = "state_id")
     @Element(column = "circle_id")
-    private List<Circle> circles;
+    private Set<Circle> circles;
 
     public State() {
-        this.districts = new ArrayList<>();
-        this.circles = new ArrayList<>();
+        this.districts = new HashSet<>();
+        this.circles = new HashSet<>();
     }
 
     public State(String name, Long code) {
         this.name = name;
         this.code = code;
-        this.districts = new ArrayList<>();
-        this.circles = new ArrayList<>();
+        this.districts = new HashSet<>();
+        this.circles = new HashSet<>();
     }
 
     public String getName() {
@@ -71,19 +71,19 @@ public class State extends MdsEntity {
         this.code = code;
     }
 
-    public List<District> getDistricts() {
+    public Set<District> getDistricts() {
         return districts;
     }
 
-    public void setDistricts(List<District> districts) {
+    public void setDistricts(Set<District> districts) {
         this.districts = districts;
     }
 
-    public List<Circle> getCircles() {
+    public Set<Circle> getCircles() {
         return circles;
     }
 
-    public void setCircles(List<Circle> circles) {
+    public void setCircles(Set<Circle> circles) {
         this.circles = circles;
     }
 

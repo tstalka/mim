@@ -6,7 +6,8 @@ import org.motechproject.nms.region.service.CircleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service("circleService")
 public class CircleServiceImpl implements CircleService {
@@ -30,8 +31,7 @@ public class CircleServiceImpl implements CircleService {
      * @return all the circles in the database
      */
     @Override
-    public List<Circle> getAll() {
-        return circleDataService.retrieveAll();
+    public Set<Circle> getAll() {
+        return new HashSet<>(circleDataService.retrieveAll());
     }
-
 }

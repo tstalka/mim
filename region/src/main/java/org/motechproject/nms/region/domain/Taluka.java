@@ -9,8 +9,8 @@ import javax.jdo.annotations.Column;
 import javax.jdo.annotations.Persistent;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(tableName = "nms_talukas")
 public class Taluka extends MdsEntity {
@@ -49,16 +49,16 @@ public class Taluka extends MdsEntity {
     @Field
     @Cascade(delete = true)
     @Persistent(mappedBy = "taluka", defaultFetchGroup = "true")
-    private List<HealthBlock> healthBlocks;
+    private Set<HealthBlock> healthBlocks;
 
     @Field
     @Cascade(delete = true)
     @Persistent(mappedBy = "taluka", defaultFetchGroup = "true")
-    private List<Village> villages;
+    private Set<Village> villages;
 
     public Taluka() {
-        this.healthBlocks = new ArrayList<>();
-        this.villages = new ArrayList<>();
+        this.healthBlocks = new HashSet<>();
+        this.villages = new HashSet<>();
     }
 
     public String getName() {
@@ -101,19 +101,19 @@ public class Taluka extends MdsEntity {
         this.district = district;
     }
 
-    public List<HealthBlock> getHealthBlocks() {
+    public Set<HealthBlock> getHealthBlocks() {
         return healthBlocks;
     }
 
-    public void setHealthBlocks(List<HealthBlock> healthBlocks) {
+    public void setHealthBlocks(Set<HealthBlock> healthBlocks) {
         this.healthBlocks = healthBlocks;
     }
 
-    public List<Village> getVillages() {
+    public Set<Village> getVillages() {
         return villages;
     }
 
-    public void setVillages(List<Village> villages) {
+    public void setVillages(Set<Village> villages) {
         this.villages = villages;
     }
 

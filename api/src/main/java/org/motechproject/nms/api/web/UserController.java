@@ -133,7 +133,7 @@ public class UserController extends BaseController {
 
         // If the user does not have a language location code we want to return the allowed language location
         // codes for the provided circle, or all if no circle was provided
-        List<Language> languages = new ArrayList<>();
+        Set<Language> languages = new HashSet<>();
         if (user.getLanguageLocationCode() == null && circleObj != null) {
             languages = languageLocationService.getAllForCircle(circleObj);
         }

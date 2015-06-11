@@ -803,12 +803,13 @@ public class KilkariControllerBundleIT extends BasePaxIT {
         return new HttpGet(sb.toString());
     }
 
+    /**
+     * To verify that Get Subscriber Details API request fails if the provided
+     * parameter value of callingNumber is : blank.
+     */
     @Test
     public void verifyFT17() throws IOException,
             InterruptedException {
-        /**
-         * test GetSubscriberDetails API with Blank Params
-         */
         HttpGet httpGet = createGetSubscriberDetailsRequest("", // callingNumber
                                                                 // Blank
                 "A", // operator
@@ -818,16 +819,20 @@ public class KilkariControllerBundleIT extends BasePaxIT {
 
         String expectedJsonResponse = createFailureResponseJson("<callingNumber: Not Present>");
 
-        assertTrue(SimpleHttpClient.execHttpRequest(httpGet,
-                HttpStatus.SC_BAD_REQUEST, expectedJsonResponse,
-                ADMIN_USERNAME, ADMIN_PASSWORD));
+        HttpResponse response = SimpleHttpClient.httpRequestAndResponse(
+                httpGet, ADMIN_USERNAME, ADMIN_PASSWORD);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine()
+                .getStatusCode());
+        assertEquals(expectedJsonResponse,
+                EntityUtils.toString(response.getEntity()));
     }
 
+    /**
+     * To verify that Get Subscriber Details API request fails if the provided
+     * parameter value of operator is : blank.
+     */
     @Test
     public void verifyFT18() throws IOException, InterruptedException {
-        /**
-         * test GetSubscriberDetails API with Blank Params
-         */
         HttpGet httpGet = createGetSubscriberDetailsRequest("1234567890", // callingNumber
                 "", // operator Blank(optional param)
                 "AP", // circle
@@ -840,11 +845,12 @@ public class KilkariControllerBundleIT extends BasePaxIT {
                 .getStatusCode());
     }
 
+    /**
+     * To verify that Get Subscriber Details API request fails if the provided
+     * parameter value of circle is : blank.
+     */
     @Test
     public void verifyFT19() throws IOException, InterruptedException {
-        /**
-         * test GetSubscriberDetails API with Blank Params
-         */
         HttpGet httpGet = createGetSubscriberDetailsRequest("1234567890", // callingNumber
                 "A", // operator
                 "", // circle Blank (optional param)
@@ -857,11 +863,12 @@ public class KilkariControllerBundleIT extends BasePaxIT {
                 .getStatusCode());
     }
 
+    /**
+     * To verify that Get Subscriber Details API request fails if the provided
+     * parameter value of callId is : blank.
+     */
     @Test
     public void verifyFT20() throws IOException, InterruptedException {
-        /**
-         * test GetSubscriberDetails API with Blank Params
-         */
         HttpGet httpGet = createGetSubscriberDetailsRequest("1234567890", // callingNumber
                 "A", // operator
                 "AP", // circle
@@ -870,9 +877,12 @@ public class KilkariControllerBundleIT extends BasePaxIT {
 
         String expectedJsonResponse = createFailureResponseJson("<callId: Not Present>");
 
-        assertTrue(SimpleHttpClient.execHttpRequest(httpGet,
-                HttpStatus.SC_BAD_REQUEST, expectedJsonResponse,
-                ADMIN_USERNAME, ADMIN_PASSWORD));
+        HttpResponse response = SimpleHttpClient.httpRequestAndResponse(
+                httpGet, ADMIN_USERNAME, ADMIN_PASSWORD);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine()
+                .getStatusCode());
+        assertEquals(expectedJsonResponse,
+                EntityUtils.toString(response.getEntity()));
 
     }
 }

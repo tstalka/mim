@@ -41,6 +41,18 @@ public class FrontLineWorkerImportServiceImpl implements FrontLineWorkerImportSe
     private FrontLineWorkerService frontLineWorkerService;
     private StateDataService stateDataService;
 
+
+    private FrontLineWorker findFlw(Map<String, Object> record) {
+        FrontLineWorker flw = frontLineWorkerService.getByMctsFlwId((String) record.get(ID));
+
+        if (flw != null) {
+            return flw;
+        }
+
+        return frontLineWorkerService.getByContactNumber((Long) record.get(CONTACT_NO));
+    }
+
+
     /*
         Expected file format:
         * any number of empty lines
@@ -63,7 +75,15 @@ public class FrontLineWorkerImportServiceImpl implements FrontLineWorkerImportSe
         try {
             Map<String, Object> record;
             while (null != (record = csvImporter.read())) {
-                frontLineWorkerService.add(processInstance(record, state));
+                FrontLineWorker flw = findFlw(record);
+
+                if (flw == null) {
+                    //this is an insert
+                    frontLineWorkerService.add(processInstance(record, state));
+                } else {
+                    //this is an update
+
+                }
             }
         } catch (ConstraintViolationException e) {
             throw new CsvImportDataException(createErrorMessage(e.getConstraintViolations(), csvImporter.getRowNumber()), e);

@@ -167,6 +167,7 @@ public class FrontLineWorker extends MdsEntity {
     public String toString() {
         return "FrontLineWorker{" +
                 "id=" + getId() +
+                ", contactNumber=" + contactNumber +
                 ", language=" + language +
                 ", district=" + district +
                 '}';
